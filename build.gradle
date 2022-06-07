@@ -23,13 +23,10 @@ java {
     withJavadocJar()
 }
 
-publishToMavenLocal {
-    repositories {
-        mavenLocal()
+publishing {
+    publications {
+        publishToMavenLocal(MavenPublication) {
+            from components.java
+        }
     }
-}
-
-wrapper {
-    gradleVersion = "4.8.1"
-    distributionType = Wrapper.DistributionType.ALL
 }
