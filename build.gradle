@@ -26,8 +26,10 @@ java {
 }
 
 publishing {
-    repositories {
-        mavenLocal()
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
     }
 }
 
