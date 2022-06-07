@@ -21,12 +21,7 @@ java {
     withJavadocJar()
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
+publishToMavenLocal {
     repositories {
         mavenLocal()
     }
