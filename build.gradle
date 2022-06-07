@@ -18,9 +18,17 @@ dependencies {
 
 }
 
+//publishing {
+//    publications {
+//        publishToMavenLocal
+//    }
+//}
+
 publishing {
     publications {
-        publishToMavenLocal
+        maven(MavenPublication) {
+            from components.java
+        }
     }
 }
 
