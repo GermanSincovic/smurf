@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 group 'com.github.GermanSincovic'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     mavenCentral()
@@ -21,7 +21,13 @@ java {
     withJavadocJar()
 }
 
-wrapper {
-    gradleVersion = "7.3.4"
-    distributionType = Wrapper.DistributionType.ALL
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
