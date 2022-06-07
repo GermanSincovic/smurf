@@ -11,6 +11,7 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
 
     implementation 'org.jdbi:jdbi3-core:3.28.0'
@@ -25,10 +26,8 @@ java {
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
+    repositories {
+        mavenLocal()
     }
 }
 
