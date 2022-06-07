@@ -1,16 +1,15 @@
-apply plugin: 'java'
-apply plugin: 'maven-publish'
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
 
-group = 'com.github.GermanSincovic'
-version = '1.0.0'
-
-sourceCompatibility = 1.8 // java 8
-targetCompatibility = 1.8
+group 'com.github.GermanSincovic'
+version '1.0.2'
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
-
 
 dependencies {
 
@@ -27,7 +26,7 @@ java {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        maven(MavenPublication) {
             from components.java
         }
     }
