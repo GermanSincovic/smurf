@@ -25,6 +25,15 @@ public class SQLQueryBuilder {
     return this.primaryKey;
   }
 
+  public String getSelectWithLimit() {
+    return String.format(
+            QueryTypeTemplates.SELECT_LIMITED.getQueryTemplate(),
+            tableName,
+            sourceSimpleClassName,
+            "selectWithLimit"
+    );
+  }
+
   public String getSelectAllQuery() {
     return String.format(
             QueryTypeTemplates.SELECT_ALL.getQueryTemplate(),

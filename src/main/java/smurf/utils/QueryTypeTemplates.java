@@ -1,6 +1,10 @@
 package smurf.utils;
 
 public enum QueryTypeTemplates {
+  SELECT_LIMITED(
+          "\n\t@SqlQuery(\"SELECT * FROM %s LIMIT ? OFFSET ?\")" +
+                      "\n\tList<%s> %s(long offset, long limit);"
+  ),
   SELECT_ALL(
           "\n\t@SqlQuery(\"SELECT * FROM %s\")" +
                       "\n\tList<%s> %s();"
