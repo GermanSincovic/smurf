@@ -37,13 +37,15 @@ public class DAOProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
+    String packageName = "";
+
     for (TypeElement annotation : annotations) {
       Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
 
       for (Element annotatedElement : annotatedElements) {
         if (annotatedElement.getKind().isClass()) {
           String sourceSimpleClassName = annotatedElement.getSimpleName().toString();
-          String packageName = annotatedElement.getEnclosingElement().toString();
+          packageName = annotatedElement.getEnclosingElement().toString();
           String tableName = annotatedElement.getAnnotation(DAO.class).value();
           List<ColumnData> columnDataList = annotatedElement.getEnclosedElements().stream()
                   .filter(element -> element.getKind().isField())
@@ -57,8 +59,32 @@ public class DAOProcessor extends AbstractProcessor {
         }
       }
 
+      try {
+        writeDaoBaseInterface(packageName);
+      } catch (IOException e) {
+        debug(e.getMessage());
+      }
     }
+
     return true;
+  }
+
+  private void writeDaoBaseInterface(String packageName) throws IOException {
+
+    String baseInterfaceName = "IDAO";
+
+    JavaFileObject daoFile = processingEnv.getFiler().createSourceFile(baseInterfaceName);
+    try (PrintWriter out = new PrintWriter(daoFile.openWriter())) {
+
+      out.println("package " + packageName + ";");
+      out.println();
+      out.println("public interface " + baseInterfaceName + " {");
+      out.println("}");
+
+    } catch (IOException e) {
+      debug(e.getMessage());
+    }
+
   }
 
   private void writeDaoFile(String packageName, String sourceSimpleClassName, String tableName, List<ColumnData> columnDataList) throws IOException {
@@ -81,7 +107,7 @@ public class DAOProcessor extends AbstractProcessor {
       out.println("import java.util.List;");
       out.println();
       out.println("@RegisterBeanMapper(" + sourceSimpleClassName + ".class)");
-      out.println("public interface " + daoSimpleClassName + " {");
+      out.println("public interface " + daoSimpleClassName + " extends IDAO {");
       out.println();
       out.println(builder.getSelectAllQuery());
       out.println();
