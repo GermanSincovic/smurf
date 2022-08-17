@@ -107,7 +107,7 @@ public class DAOProcessor extends AbstractProcessor {
       out.println("import java.util.List;");
       out.println();
       out.println("@RegisterBeanMapper(" + sourceSimpleClassName + ".class)");
-      out.println("public interface " + daoSimpleClassName + " extends IDAO {");
+      out.println("public interface " + daoSimpleClassName + " extends " + packageName + ".IDAO {");
       out.println();
       out.println(builder.getSelectAllQuery());
       out.println();
