@@ -10,8 +10,8 @@ public enum QueryTypeTemplates {
                       "\n\tList<%s> %s();"
   ),
   SELECT_BY_PRIMARY_KEY(
-          "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s\")" +
-                      "\n\t%s %s(@BindBean %s %s);"
+          "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s = ?\")" +
+                      "\n\t%s %s(%s %s);"
   ),
   INSERT(
           "\n\t@GetGeneratedKeys" +

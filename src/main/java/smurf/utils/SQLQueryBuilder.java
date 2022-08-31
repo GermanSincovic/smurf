@@ -47,11 +47,11 @@ public class SQLQueryBuilder {
     return String.format(
             QueryTypeTemplates.SELECT_BY_PRIMARY_KEY.getQueryTemplate(),
             tableName,
-            getKeyPair(primaryKey),
+            primaryKey.getDbName(),
             sourceSimpleClassName,
             "selectBy" + makeFirstLetterUpperCase(primaryKey.getCodeName()),
-            sourceSimpleClassName,
-            makeFirstLetterLowerCase(sourceSimpleClassName)
+            primaryKey.getTypeShort(),
+            primaryKey.getCodeName()
     );
   }
 
