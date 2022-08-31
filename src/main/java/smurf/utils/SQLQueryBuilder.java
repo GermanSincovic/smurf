@@ -49,7 +49,7 @@ public class SQLQueryBuilder {
             tableName,
             getKeyPair(primaryKey),
             sourceSimpleClassName,
-            "selectAllBy" + makeFirstLetterUpperCase(primaryKey.getCodeName()),
+            "selectBy" + makeFirstLetterUpperCase(primaryKey.getCodeName()),
             sourceSimpleClassName,
             makeFirstLetterLowerCase(sourceSimpleClassName)
     );

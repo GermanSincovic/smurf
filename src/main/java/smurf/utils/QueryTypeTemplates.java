@@ -11,7 +11,7 @@ public enum QueryTypeTemplates {
   ),
   SELECT_BY_PRIMARY_KEY(
           "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s\")" +
-                      "\n\tList<%s> %s(@BindBean %s %s);"
+                      "\n\t%s %s(@BindBean %s %s);"
   ),
   INSERT(
           "\n\t@GetGeneratedKeys" +
