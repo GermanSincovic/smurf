@@ -23,8 +23,8 @@ public enum QueryTypeTemplates {
                       "\n\tvoid %s(@BindBean %s %s);"
   ),
   DELETE_BY_PRIMARY_KEY(
-          "\n\t@SqlUpdate(\"DELETE FROM %s WHERE %s\")" +
-                      "\n\tvoid %s(@BindBean %s %s);"
+          "\n\t@SqlUpdate(\"DELETE FROM %s WHERE %s = ?\")" +
+                      "\n\tvoid %s(%s %s);"
   );
 
   private final String queryTemplate;

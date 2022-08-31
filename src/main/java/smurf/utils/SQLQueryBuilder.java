@@ -84,10 +84,10 @@ public class SQLQueryBuilder {
     return String.format(
             QueryTypeTemplates.DELETE_BY_PRIMARY_KEY.getQueryTemplate(),
             tableName,
-            getKeyPair(primaryKey),
+            primaryKey.getDbName(),
             "deleteBy" + makeFirstLetterUpperCase(primaryKey.getCodeName()),
-            sourceSimpleClassName,
-            makeFirstLetterLowerCase(sourceSimpleClassName)
+            primaryKey.getTypeShort(),
+            primaryKey.getCodeName()
     );
   }
 
