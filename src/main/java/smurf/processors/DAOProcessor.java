@@ -104,6 +104,7 @@ public class DAOProcessor extends AbstractProcessor {
       out.println("import org.jdbi.v3.sqlobject.statement.SqlQuery;");
       out.println("import org.jdbi.v3.sqlobject.statement.SqlUpdate;");
       out.println();
+      out.println("import java.math.BigDecimal;");
       out.println("import java.sql.Timestamp;");
       out.println("import java.util.List;");
       out.println();
