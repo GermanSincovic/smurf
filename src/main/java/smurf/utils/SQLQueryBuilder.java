@@ -45,7 +45,7 @@ public class SQLQueryBuilder {
 
   public String getSelectByPrimaryKeyQuery() {
     return String.format(
-            QueryTypeTemplates.SELECT_BY_PRIMARY_KEY.getQueryTemplate(),
+            QueryTypeTemplates.SELECT_BY_UNIQUE_KEY.getQueryTemplate(),
             tableName,
             primaryKey.getDbName(),
             sourceSimpleClassName,
@@ -53,6 +53,13 @@ public class SQLQueryBuilder {
             primaryKey.getTypeShort(),
             primaryKey.getCodeName()
     );
+  }
+
+  public String getSelectByNonPrimaryKeyQueryList() {
+    return columnList.stream()
+            .filter(columnData -> !columnData.isPrimaryKey())
+            .map(this::getSelectByKeyQuery)
+            .collect(Collectors.joining("\n\n"));
   }
 
   public String getInsertQuery() {
@@ -70,7 +77,7 @@ public class SQLQueryBuilder {
 
   public String getUpdateByPrimaryKeyQuery() {
     return String.format(
-            QueryTypeTemplates.UPDATE_BY_PRIMARY_KEY.getQueryTemplate(),
+            QueryTypeTemplates.UPDATE_BY_UNIQUE_KEY.getQueryTemplate(),
             tableName,
             getKeyPairList(),
             getKeyPair(primaryKey),
@@ -82,12 +89,24 @@ public class SQLQueryBuilder {
 
   public String getDeleteQueryByPrimaryKey() {
     return String.format(
-            QueryTypeTemplates.DELETE_BY_PRIMARY_KEY.getQueryTemplate(),
+            QueryTypeTemplates.DELETE_BY_UNIQUE_KEY.getQueryTemplate(),
             tableName,
             primaryKey.getDbName(),
             "deleteBy" + makeFirstLetterUpperCase(primaryKey.getCodeName()),
             primaryKey.getTypeShort(),
             primaryKey.getCodeName()
+    );
+  }
+
+  private String getSelectByKeyQuery(ColumnData columnData) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY.getQueryTemplate(),
+            tableName,
+            columnData.getDbName(),
+            sourceSimpleClassName,
+            "selectBy" + makeFirstLetterUpperCase(columnData.getCodeName()),
+            columnData.getTypeShort(),
+            columnData.getCodeName()
     );
   }
 
@@ -126,7 +145,7 @@ public class SQLQueryBuilder {
     }
   }
 
-  private List<ColumnData> getPrimaryKeyColumnList(){
+  private List<ColumnData> getPrimaryKeyColumnList() {
     return columnList.stream()
             .filter(ColumnData::isPrimaryKey)
             .collect(Collectors.toList());

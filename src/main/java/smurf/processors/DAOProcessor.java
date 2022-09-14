@@ -113,6 +113,8 @@ public class DAOProcessor extends AbstractProcessor {
       out.println();
       out.println(builder.getSelectAllQuery());
       out.println();
+      out.println(builder.getSelectByNonPrimaryKeyQueryList());
+      out.println();
       if (nonNull(builder.getPrimaryKey())) {
         out.println(builder.getSelectByPrimaryKeyQuery());
         out.println();

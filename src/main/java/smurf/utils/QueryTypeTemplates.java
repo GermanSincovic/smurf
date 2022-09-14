@@ -9,20 +9,24 @@ public enum QueryTypeTemplates {
           "\n\t@SqlQuery(\"SELECT * FROM %s\")" +
                       "\n\tList<%s> %s();"
   ),
-  SELECT_BY_PRIMARY_KEY(
+  SELECT_BY_UNIQUE_KEY(
           "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s = ?\")" +
                       "\n\t%s %s(%s %s);"
+  ),
+  SELECT_BY_KEY(
+          "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s = ?\")" +
+                  "\n\tList<%s> %s(%s %s);"
   ),
   INSERT(
           "\n\t@GetGeneratedKeys" +
                       "\n\t@SqlUpdate(\"INSERT INTO %s (%s) VALUES (%s)\")" +
                       "\n\t%s %s(@BindBean %s %s);"
   ),
-  UPDATE_BY_PRIMARY_KEY(
+  UPDATE_BY_UNIQUE_KEY(
           "\n\t@SqlUpdate(\"UPDATE %s SET %s WHERE %s\")" +
                       "\n\tvoid %s(@BindBean %s %s);"
   ),
-  DELETE_BY_PRIMARY_KEY(
+  DELETE_BY_UNIQUE_KEY(
           "\n\t@SqlUpdate(\"DELETE FROM %s WHERE %s = ?\")" +
                       "\n\tvoid %s(%s %s);"
   );
