@@ -15,7 +15,11 @@ public enum QueryTypeTemplates {
   ),
   SELECT_BY_KEY(
           "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s = ?\")" +
-                  "\n\tList<%s> %s(%s %s);"
+                      "\n\tList<%s> %s(%s %s);"
+  ),
+  SELECT_BY_KEY_LIMITED(
+          "\n\t@SqlQuery(\"SELECT * FROM %s WHERE %s = ? LIMIT ? OFFSET ?\")" +
+                      "\n\tList<%s> %s(%s %s, long limit, long offset);"
   ),
   INSERT(
           "\n\t@GetGeneratedKeys" +

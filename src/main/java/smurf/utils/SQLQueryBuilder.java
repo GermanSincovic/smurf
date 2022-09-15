@@ -58,7 +58,9 @@ public class SQLQueryBuilder {
   public String getSelectByNonPrimaryKeyQueryList() {
     return columnList.stream()
             .filter(columnData -> !columnData.isPrimaryKey())
-            .map(this::getSelectByKeyQuery)
+            .map(column -> this.getSelectByKeyQuery(column)
+                    + "\n\n"
+                    + this.getSelectByKeyWithLimitQuery(column))
             .collect(Collectors.joining("\n\n"));
   }
 
@@ -105,6 +107,18 @@ public class SQLQueryBuilder {
             columnData.getDbName(),
             sourceSimpleClassName,
             "selectBy" + makeFirstLetterUpperCase(columnData.getCodeName()),
+            columnData.getTypeShort(),
+            columnData.getCodeName()
+    );
+  }
+
+  private String getSelectByKeyWithLimitQuery(ColumnData columnData) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_LIMITED.getQueryTemplate(),
+            tableName,
+            columnData.getDbName(),
+            sourceSimpleClassName,
+            "selectBy" + makeFirstLetterUpperCase(columnData.getCodeName()) + "withLimit",
             columnData.getTypeShort(),
             columnData.getCodeName()
     );
