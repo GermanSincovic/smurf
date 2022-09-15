@@ -2,6 +2,7 @@ package smurf.utils;
 
 import smurf.data.ColumnData;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,8 @@ public class SQLQueryBuilder {
   private final List<ColumnData> columnList;
   private final String tableName;
   private final ColumnData primaryKey;
+
+  private static final String SELECT_BY = "selectBy";
 
   public SQLQueryBuilder(List<ColumnData> columnList, String tableName, String sourceSimpleClassName) throws IllegalArgumentException {
     this.sourceSimpleClassName = sourceSimpleClassName;
@@ -43,25 +46,51 @@ public class SQLQueryBuilder {
     );
   }
 
-  public String getSelectByPrimaryKeyQuery() {
-    return String.format(
-            QueryTypeTemplates.SELECT_BY_UNIQUE_KEY.getQueryTemplate(),
-            tableName,
-            primaryKey.getDbName(),
-            sourceSimpleClassName,
-            "selectBy" + makeFirstLetterUpperCase(primaryKey.getCodeName()),
-            primaryKey.getTypeShort(),
-            primaryKey.getCodeName()
-    );
+  public String getSelectByUniqueKeyQueryList() {
+    return columnList.stream()
+            .filter(col -> col.isUniqueKey() || col.isPrimaryKey())
+            .map(this::getSelectByUniqueKeyQuery)
+            .collect(Collectors.joining("\n\n"));
   }
 
-  public String getSelectByNonPrimaryKeyQueryList() {
-    return columnList.stream()
-            .filter(columnData -> !columnData.isPrimaryKey())
-            .map(column -> this.getSelectByKeyQuery(column)
-                    + "\n\n"
-                    + this.getSelectByKeyWithLimitQuery(column))
-            .collect(Collectors.joining("\n\n"));
+  public String getSelectByNonUniqueKeyQueryList() {
+    List<String> queryList = new ArrayList<>();
+    List<ColumnData> chronicleColumns = columnList.stream()
+            .filter(ColumnData::isChronicle)
+            .collect(Collectors.toList());
+    List<ColumnData> regularColumns = columnList.stream()
+            .filter(col -> !col.isUniqueKey() && !col.isPrimaryKey() && !col.isChronicle())
+            .collect(Collectors.toList());
+    queryList.add(chronicleColumns.stream()
+            .map(col ->
+                    this.getSelectByChronicleEarlierQuery(col) +
+                            "\n\n" +
+                            this.getSelectByChronicleLaterQuery(col) +
+                            "\n\n" +
+                            this.getSelectByChronicleRangeQuery(col)
+            )
+            .collect(Collectors.joining("\n\n")));
+    regularColumns
+            .forEach(rc -> {
+              queryList.add(getSelectByKeyQuery(rc));
+              queryList.add(getSelectByKeyWithLimitQuery(rc));
+              queryList.add(
+                      chronicleColumns.stream()
+                              .map(cc ->
+                                      this.getSelectByKeyAndChronicleEarlierQuery(rc, cc)
+                                              + "\n\n"
+                                              + this.getSelectByKeyAndChronicleLaterQuery(rc, cc)
+                                              + "\n\n"
+                                              + this.getSelectByKeyAndChronicleRangeQuery(rc, cc)
+                                              + "\n\n"
+                                              + this.getSelectByKeyAndChronicleEarlierQueryLimited(rc, cc)
+                                              + "\n\n"
+                                              + this.getSelectByKeyAndChronicleLaterQueryLimited(rc, cc)
+                                              + "\n\n"
+                                              + this.getSelectByKeyAndChronicleRangeQueryLimited(rc, cc)
+                              ).collect(Collectors.joining("\n\n")));
+            });
+    return String.join("\n\n", queryList);
   }
 
   public String getInsertQuery() {
@@ -100,27 +129,162 @@ public class SQLQueryBuilder {
     );
   }
 
-  private String getSelectByKeyQuery(ColumnData columnData) {
+  private String getSelectByKeyQuery(ColumnData column) {
     return String.format(
             QueryTypeTemplates.SELECT_BY_KEY.getQueryTemplate(),
             tableName,
-            columnData.getDbName(),
+            column.getDbName(),
             sourceSimpleClassName,
-            "selectBy" + makeFirstLetterUpperCase(columnData.getCodeName()),
-            columnData.getTypeShort(),
-            columnData.getCodeName()
+            SELECT_BY + makeFirstLetterUpperCase(column.getCodeName()),
+            column.getTypeShort(),
+            column.getCodeName()
     );
   }
 
-  private String getSelectByKeyWithLimitQuery(ColumnData columnData) {
+  public String getSelectByUniqueKeyQuery(ColumnData column) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_UNIQUE_KEY.getQueryTemplate(),
+            tableName,
+            column.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(column.getCodeName()),
+            column.getTypeShort(),
+            column.getCodeName()
+    );
+  }
+
+  private String getSelectByChronicleEarlierQuery(ColumnData column) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_CHRONICLE_EARLIER.getQueryTemplate(),
+            tableName,
+            column.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(column.getCodeName()) + "Earlier",
+            column.getTypeShort()
+    );
+  }
+
+  private String getSelectByChronicleLaterQuery(ColumnData column) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_CHRONICLE_LATER.getQueryTemplate(),
+            tableName,
+            column.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(column.getCodeName()) + "Later",
+            column.getTypeShort()
+    );
+  }
+
+  private String getSelectByChronicleRangeQuery(ColumnData column) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_CHRONICLE_RANGE.getQueryTemplate(),
+            tableName,
+            column.getDbName(),
+            column.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(column.getCodeName()) + "InRange",
+            column.getTypeShort(),
+            column.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyAndChronicleEarlierQuery(ColumnData key, ColumnData chronicle) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_AND_CHRONICLE_EARLIER.getQueryTemplate(),
+            tableName,
+            key.getDbName(),
+            chronicle.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(key.getCodeName()) + "And" + makeFirstLetterUpperCase(chronicle.getCodeName()) + "Earlier",
+            key.getTypeShort(),
+            key.getCodeName(),
+            chronicle.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyAndChronicleLaterQuery(ColumnData key, ColumnData chronicle) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_AND_CHRONICLE_LATER.getQueryTemplate(),
+            tableName,
+            key.getDbName(),
+            chronicle.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(key.getCodeName()) + "And" + makeFirstLetterUpperCase(chronicle.getCodeName()) + "Later",
+            key.getTypeShort(),
+            key.getCodeName(),
+            chronicle.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyAndChronicleRangeQuery(ColumnData key, ColumnData chronicle) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_AND_CHRONICLE_RANGE.getQueryTemplate(),
+            tableName,
+            key.getDbName(),
+            chronicle.getDbName(),
+            chronicle.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(key.getCodeName()) + "And" + makeFirstLetterUpperCase(chronicle.getCodeName()) + "InRange",
+            key.getTypeShort(),
+            key.getCodeName(),
+            chronicle.getTypeShort(),
+            chronicle.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyAndChronicleEarlierQueryLimited(ColumnData key, ColumnData chronicle) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_AND_CHRONICLE_EARLIER_LIMITED.getQueryTemplate(),
+            tableName,
+            key.getDbName(),
+            chronicle.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(key.getCodeName()) + "And" + makeFirstLetterUpperCase(chronicle.getCodeName()) + "EarlierWithLimit",
+            key.getTypeShort(),
+            key.getCodeName(),
+            chronicle.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyAndChronicleLaterQueryLimited(ColumnData key, ColumnData chronicle) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_AND_CHRONICLE_LATER_LIMITED.getQueryTemplate(),
+            tableName,
+            key.getDbName(),
+            chronicle.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(key.getCodeName()) + "And" + makeFirstLetterUpperCase(chronicle.getCodeName()) + "LaterWithLimit",
+            key.getTypeShort(),
+            key.getCodeName(),
+            chronicle.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyAndChronicleRangeQueryLimited(ColumnData key, ColumnData chronicle) {
+    return String.format(
+            QueryTypeTemplates.SELECT_BY_KEY_AND_CHRONICLE_RANGE_LIMITED.getQueryTemplate(),
+            tableName,
+            key.getDbName(),
+            chronicle.getDbName(),
+            chronicle.getDbName(),
+            sourceSimpleClassName,
+            SELECT_BY + makeFirstLetterUpperCase(key.getCodeName()) + "And" + makeFirstLetterUpperCase(chronicle.getCodeName()) + "InRangeWithLimit",
+            key.getTypeShort(),
+            key.getCodeName(),
+            chronicle.getTypeShort(),
+            chronicle.getTypeShort()
+    );
+  }
+
+  private String getSelectByKeyWithLimitQuery(ColumnData column) {
     return String.format(
             QueryTypeTemplates.SELECT_BY_KEY_LIMITED.getQueryTemplate(),
             tableName,
-            columnData.getDbName(),
+            column.getDbName(),
             sourceSimpleClassName,
-            "selectBy" + makeFirstLetterUpperCase(columnData.getCodeName()) + "withLimit",
-            columnData.getTypeShort(),
-            columnData.getCodeName()
+            SELECT_BY + makeFirstLetterUpperCase(column.getCodeName()) + "WithLimit",
+            column.getTypeShort(),
+            column.getCodeName()
     );
   }
 

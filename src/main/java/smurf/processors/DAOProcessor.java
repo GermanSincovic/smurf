@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
+@SuppressWarnings("unused")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class DAOProcessor extends AbstractProcessor {
@@ -37,7 +38,7 @@ public class DAOProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-    String packageName = "";
+    String packageName;
 
     for (TypeElement annotation : annotations) {
       Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
@@ -58,33 +59,8 @@ public class DAOProcessor extends AbstractProcessor {
           }
         }
       }
-
-      try {
-        writeDaoBaseInterface(packageName);
-      } catch (IOException e) {
-        debug(e.getMessage());
-      }
     }
-
     return true;
-  }
-
-  private void writeDaoBaseInterface(String packageName) throws IOException {
-
-    String baseInterfaceName = "IDAO";
-
-    JavaFileObject daoFile = processingEnv.getFiler().createSourceFile(baseInterfaceName);
-    try (PrintWriter out = new PrintWriter(daoFile.openWriter())) {
-
-      out.println("package " + packageName + ";");
-      out.println();
-      out.println("public interface " + baseInterfaceName + " {");
-      out.println("}");
-
-    } catch (IOException e) {
-      debug(e.getMessage());
-    }
-
   }
 
   private void writeDaoFile(String packageName, String sourceSimpleClassName, String tableName, List<ColumnData> columnDataList) throws IOException {
@@ -115,12 +91,10 @@ public class DAOProcessor extends AbstractProcessor {
       out.println();
       out.println(builder.getSelectAllQuery());
       out.println();
-      out.println(builder.getSelectByNonPrimaryKeyQueryList());
+      out.println(builder.getSelectByNonUniqueKeyQueryList());
       out.println();
-      if (nonNull(builder.getPrimaryKey())) {
-        out.println(builder.getSelectByPrimaryKeyQuery());
-        out.println();
-      }
+      out.println(builder.getSelectByUniqueKeyQueryList());
+      out.println();
       if (nonNull(builder.getPrimaryKey())) {
         out.println(builder.getUpdateByPrimaryKeyQuery());
         out.println();
