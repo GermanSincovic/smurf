@@ -4,6 +4,7 @@ import smurf.data.ColumnData;
 import smurf.data.SQLQueryConfig;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class SQLQuery {
@@ -16,10 +17,15 @@ public abstract class SQLQuery {
     this.columnList = columnList;
   }
 
-  protected String getWhereReplacement() {
+  protected final String getWhereReplacement(Predicate<ColumnData> exceptionRule) {
     return "WHERE " + config.getWhere().stream()
+            .filter(exceptionRule)
             .map(col -> col.getDbName() + " = :" + col.getCodeName())
             .collect(Collectors.joining(" AND "));
+  }
+
+  protected final String getWhereReplacement() {
+    return getWhereReplacement(x -> true);
   }
 
   protected String getTableReplacement() {

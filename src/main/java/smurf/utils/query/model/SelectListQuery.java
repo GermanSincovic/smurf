@@ -16,13 +16,12 @@ public class SelectListQuery extends SQLQuery implements SQLQueryBuilder {
 
   public String build() {
     String query = SELECT_LIST.getQueryTemplate();
-    query = query.replace("{table}", getTableReplacement())
-            .replace("{where}", getWhereReplacement())
+    return query.replace("{table}", getTableReplacement())
+            .replace("{where}", getWhereReplacement(columnData -> !columnData.isPrimaryKey() && !columnData.isUniqueKey()))
             .replace("{returnType}", getReturnTypeReplacement())
             .replace("{limited}", getLimitedReplacement())
-            .replace("{methodName}", getMethodNameReplacement("select"))
+            .replace("{methodName}", getMethodNameReplacement("selectList"))
             .replace("{incomingArgs}", getIncomingArgsReplacement());
-    return query;
   }
 
 }
