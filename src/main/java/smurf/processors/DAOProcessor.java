@@ -3,7 +3,7 @@ package smurf.processors;
 import com.google.auto.service.AutoService;
 import smurf.annotations.DAO;
 import smurf.data.ColumnData;
-import smurf.utils.SQLQueryBuilder;
+import smurf.utils.SQLQueryHelper;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Processor;
@@ -20,8 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
 
 @SuppressWarnings("unused")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -67,7 +65,11 @@ public class DAOProcessor extends AbstractProcessor {
 
     String daoSimpleClassName = sourceSimpleClassName + "DAO";
 
-    SQLQueryBuilder builder = new SQLQueryBuilder(columnDataList, tableName, sourceSimpleClassName);
+    if (columnDataList.stream().filter(ColumnData::isPrimaryKey).count() > 1) {
+      throw new IllegalArgumentException("There can be only 1 field annotated with @PrimaryKey annotation");
+    }
+
+    SQLQueryHelper builder = new SQLQueryHelper(columnDataList, tableName, sourceSimpleClassName);
 
     JavaFileObject daoFile = processingEnv.getFiler().createSourceFile(daoSimpleClassName);
     try (PrintWriter out = new PrintWriter(daoFile.openWriter())) {
@@ -75,6 +77,7 @@ public class DAOProcessor extends AbstractProcessor {
       out.println("package " + packageName + ";");
       out.println();
       out.println("import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;");
+      out.println("import org.jdbi.v3.sqlobject.customizer.Bind;");
       out.println("import org.jdbi.v3.sqlobject.customizer.BindBean;");
       out.println("import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;");
       out.println("import org.jdbi.v3.sqlobject.statement.SqlQuery;");
@@ -87,24 +90,8 @@ public class DAOProcessor extends AbstractProcessor {
       out.println("@RegisterBeanMapper(" + sourceSimpleClassName + ".class)");
       out.println("public interface " + daoSimpleClassName + " {");
       out.println();
-      out.println(builder.getSelectWithLimit());
+      out.println(builder.generate());
       out.println();
-      out.println(builder.getSelectAllQuery());
-      out.println();
-      out.println(builder.getSelectByNonUniqueKeyQueryList());
-      out.println();
-      out.println(builder.getSelectByUniqueKeyQueryList());
-      out.println();
-      if (nonNull(builder.getPrimaryKey())) {
-        out.println(builder.getUpdateByPrimaryKeyQuery());
-        out.println();
-      }
-      out.println(builder.getInsertQuery());
-      out.println();
-      if (nonNull(builder.getPrimaryKey())) {
-        out.println(builder.getDeleteQueryByPrimaryKey());
-        out.println();
-      }
       out.println("}");
       out.println();
 

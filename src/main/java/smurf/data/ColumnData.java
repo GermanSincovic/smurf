@@ -3,6 +3,7 @@ package smurf.data;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import smurf.annotations.Chronicle;
 import smurf.annotations.PrimaryKey;
+import smurf.annotations.SearchCriteria;
 import smurf.annotations.UniqueKey;
 
 import javax.lang.model.element.Element;
@@ -20,6 +21,7 @@ public class ColumnData {
   private final boolean isPrimaryKey;
   private final boolean isUniqueKey;
   private final boolean isChronicle;
+  private final boolean isSearchCriteria;
 
   public ColumnData(Element fieldElement) {
     this.field = fieldElement;
@@ -30,10 +32,7 @@ public class ColumnData {
     this.isPrimaryKey = hasFieldPrimaryKeyAnnotation();
     this.isUniqueKey = hasFieldUniqueKeyAnnotation();
     this.isChronicle = hasFieldChronicleAnnotation();
-  }
-
-  public String getType() {
-    return type;
+    this.isSearchCriteria = hasFieldSearchCriteriaAnnotation();
   }
 
   public String getTypeShort() {
@@ -60,6 +59,10 @@ public class ColumnData {
     return isChronicle;
   }
 
+  public boolean isSearchCriteria() {
+    return hasFieldSearchCriteriaAnnotation();
+  }
+
   private String getDBColumnNameOfField(Element fieldElement) {
     if (hasFieldAnnotation(ColumnName.class)) {
       return fieldElement.getAnnotation(ColumnName.class).value();
@@ -80,6 +83,10 @@ public class ColumnData {
     return hasFieldAnnotation(Chronicle.class);
   }
 
+  private boolean hasFieldSearchCriteriaAnnotation() {
+    return hasFieldAnnotation(SearchCriteria.class);
+  }
+
   private boolean hasFieldAnnotation(Class<? extends Annotation> annotation) {
     return nonNull(field.getAnnotation(annotation));
   }
@@ -90,13 +97,17 @@ public class ColumnData {
 
   @Override
   public String toString() {
-    return "\nColumnData{" +
-            "\n   field = " + field +
-            "\n   type = " + type +
-            "\n   typeShort = " + typeShort +
-            "\n   codeName = " + codeName +
-            "\n   dbName = " + dbName +
-            "\n   isPrimaryKey = " + isPrimaryKey +
-            "\n}";
+    return "ColumnData{" +
+            "field=" + field +
+            ", type='" + type + '\'' +
+            ", typeShort='" + typeShort + '\'' +
+            ", codeName='" + codeName + '\'' +
+            ", dbName='" + dbName + '\'' +
+            ", isPrimaryKey=" + isPrimaryKey +
+            ", isUniqueKey=" + isUniqueKey +
+            ", isChronicle=" + isChronicle +
+            ", isSearchCriteria=" + isSearchCriteria +
+            '}';
   }
+
 }
