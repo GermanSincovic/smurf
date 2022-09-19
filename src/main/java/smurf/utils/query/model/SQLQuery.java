@@ -27,7 +27,6 @@ public abstract class SQLQuery {
   }
 
   protected String getMethodNameReplacement(String prefix) {
-    prefix = "\n" + prefix;
     return (!config.getWhere().isEmpty())
             ? prefix.concat("By").concat(config.getWhere().stream()
             .map(col -> makeFirstLetterUpperCase(col.getCodeName()))
@@ -45,10 +44,10 @@ public abstract class SQLQuery {
 
   protected String getIncomingArgsReplacement() {
     String rIncomingArgs = config.getWhere().stream()
-            .map(col -> String.format("@Bind('%s') %s %s", col.getCodeName(), col.getTypeShort(), col.getCodeName()))
+            .map(col -> String.format("@Bind(\"%s\") %s %s", col.getCodeName(), col.getTypeShort(), col.getCodeName()))
             .collect(Collectors.joining(", "));
     return (config.isLimited())
-            ? rIncomingArgs.concat(", @Bind('limit') long limit, @Bind('offset') long offset")
+            ? rIncomingArgs.concat(", @Bind(\"limit\") long limit, @Bind(\"offset\") long offset")
             : rIncomingArgs;
   }
 
