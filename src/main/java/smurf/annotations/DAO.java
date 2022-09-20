@@ -8,5 +8,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface DAO {
+
   String value();
+
+  DAOCRUDEnum[] queries() default {DAOCRUDEnum.INSERT, DAOCRUDEnum.UPDATE, DAOCRUDEnum.DELETE};
 }

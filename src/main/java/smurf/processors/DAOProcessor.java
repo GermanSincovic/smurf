@@ -2,6 +2,7 @@ package smurf.processors;
 
 import com.google.auto.service.AutoService;
 import smurf.annotations.DAO;
+import smurf.annotations.DAOCRUDEnum;
 import smurf.data.ColumnData;
 import smurf.utils.SQLQueryHelper;
 
@@ -46,12 +47,13 @@ public class DAOProcessor extends AbstractProcessor {
           String sourceSimpleClassName = annotatedElement.getSimpleName().toString();
           packageName = annotatedElement.getEnclosingElement().toString();
           String tableName = annotatedElement.getAnnotation(DAO.class).value();
+          DAOCRUDEnum[] queries = annotatedElement.getAnnotation(DAO.class).queries();
           List<ColumnData> columnDataList = annotatedElement.getEnclosedElements().stream()
                   .filter(element -> element.getKind().isField())
                   .map(ColumnData::new)
                   .collect(Collectors.toList());
           try {
-            writeDaoFile(packageName, sourceSimpleClassName, tableName, columnDataList);
+            writeDaoFile(packageName, sourceSimpleClassName, tableName, columnDataList, queries);
           } catch (IOException e) {
             debug(e.getMessage());
           }
@@ -61,7 +63,7 @@ public class DAOProcessor extends AbstractProcessor {
     return true;
   }
 
-  private void writeDaoFile(String packageName, String sourceSimpleClassName, String tableName, List<ColumnData> columnDataList) throws IOException {
+  private void writeDaoFile(String packageName, String sourceSimpleClassName, String tableName, List<ColumnData> columnDataList, DAOCRUDEnum[] queries) throws IOException {
 
     String daoSimpleClassName = sourceSimpleClassName + "DAO";
 
@@ -69,7 +71,7 @@ public class DAOProcessor extends AbstractProcessor {
       throw new IllegalArgumentException("There can be only 1 field annotated with @PrimaryKey annotation");
     }
 
-    SQLQueryHelper builder = new SQLQueryHelper(columnDataList, tableName, sourceSimpleClassName);
+    SQLQueryHelper builder = new SQLQueryHelper(columnDataList, tableName, sourceSimpleClassName, queries);
 
     JavaFileObject daoFile = processingEnv.getFiler().createSourceFile(daoSimpleClassName);
     try (PrintWriter out = new PrintWriter(daoFile.openWriter())) {

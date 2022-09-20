@@ -18,10 +18,14 @@ public abstract class SQLQuery {
   }
 
   protected final String getWhereReplacement(Predicate<ColumnData> exceptionRule) {
-    return "WHERE " + config.getWhere().stream()
-            .filter(exceptionRule)
-            .map(col -> col.getDbName() + " = :" + col.getCodeName())
-            .collect(Collectors.joining(" AND "));
+    if (config.getWhere().isEmpty()) {
+      return "";
+    } else {
+      return "WHERE " + config.getWhere().stream()
+              .filter(exceptionRule)
+              .map(col -> col.getDbName() + " = :" + col.getCodeName())
+              .collect(Collectors.joining(" AND "));
+    }
   }
 
   protected final String getWhereReplacement() {

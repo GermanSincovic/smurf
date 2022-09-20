@@ -4,7 +4,6 @@ import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import smurf.annotations.Chronicle;
 import smurf.annotations.PrimaryKey;
 import smurf.annotations.SearchCriteria;
-import smurf.annotations.UniqueKey;
 
 import javax.lang.model.element.Element;
 import java.lang.annotation.Annotation;
@@ -19,7 +18,6 @@ public class ColumnData {
   private final String codeName;
   private final String dbName;
   private final boolean isPrimaryKey;
-  private final boolean isUniqueKey;
   private final boolean isChronicle;
   private final boolean isSearchCriteria;
 
@@ -30,7 +28,6 @@ public class ColumnData {
     this.codeName = fieldElement.getSimpleName().toString();
     this.dbName = getDBColumnNameOfField(fieldElement);
     this.isPrimaryKey = hasFieldPrimaryKeyAnnotation();
-    this.isUniqueKey = hasFieldUniqueKeyAnnotation();
     this.isChronicle = hasFieldChronicleAnnotation();
     this.isSearchCriteria = hasFieldSearchCriteriaAnnotation();
   }
@@ -51,10 +48,6 @@ public class ColumnData {
     return isPrimaryKey;
   }
 
-  public boolean isUniqueKey() {
-    return isUniqueKey;
-  }
-
   public boolean isChronicle() {
     return isChronicle;
   }
@@ -73,10 +66,6 @@ public class ColumnData {
 
   private boolean hasFieldPrimaryKeyAnnotation() {
     return hasFieldAnnotation(PrimaryKey.class);
-  }
-
-  private boolean hasFieldUniqueKeyAnnotation() {
-    return hasFieldAnnotation(UniqueKey.class);
   }
 
   private boolean hasFieldChronicleAnnotation() {
@@ -104,7 +93,6 @@ public class ColumnData {
             ", codeName='" + codeName + '\'' +
             ", dbName='" + dbName + '\'' +
             ", isPrimaryKey=" + isPrimaryKey +
-            ", isUniqueKey=" + isUniqueKey +
             ", isChronicle=" + isChronicle +
             ", isSearchCriteria=" + isSearchCriteria +
             '}';

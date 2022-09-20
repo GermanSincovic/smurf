@@ -19,7 +19,7 @@ public class UpdateQuery extends SQLQuery implements SQLQueryBuilder {
     String query = UPDATE.getQueryTemplate();
     return query.replace("{table}", getTableReplacement())
             .replace("{keyValuePairs}", getKeyPairList())
-            .replace("{where}", getWhereReplacement())
+            .replace("{where}", getWhereReplacement(columnData -> !columnData.isSearchCriteria()))
             .replace("{methodName}", getMethodNameReplacement("update"))
             .replace("{incomingObj}", getIncomingObjReplacement());
   }
