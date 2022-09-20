@@ -17,7 +17,7 @@ public class SelectListQuery extends SQLQuery implements SQLQueryBuilder {
   public String build() {
     String query = SELECT_LIST.getQueryTemplate();
     return query.replace("{table}", getTableReplacement())
-            .replace("{where}", getWhereReplacement(columnData -> !columnData.isPrimaryKey() && !columnData.isUniqueKey()))
+            .replace("{where}", getWhereReplacement(columnData -> !columnData.isPrimaryKey()))
             .replace("{returnType}", getReturnTypeReplacement())
             .replace("{limited}", getLimitedReplacement())
             .replace("{methodName}", getMethodNameReplacement("selectList"))
