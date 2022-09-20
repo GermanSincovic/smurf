@@ -14,7 +14,6 @@ public class SelectSingleQuery extends SQLQuery implements SQLQueryBuilder {
     super(config, columnList);
   }
 
-  @Override
   public String build() {
     String query = SELECT_SINGLE.getQueryTemplate();
     return query.replace("{table}", getTableReplacement())

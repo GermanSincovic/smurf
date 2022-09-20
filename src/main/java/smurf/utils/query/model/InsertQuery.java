@@ -14,7 +14,6 @@ public class InsertQuery extends SQLQuery implements SQLQueryBuilder {
     super(config, columnList);
   }
 
-  @Override
   public String build() {
     String query = INSERT.getQueryTemplate();
     return query.replace("{table}", getTableReplacement())

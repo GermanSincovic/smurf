@@ -4,5 +4,5 @@ public enum DAOCRUDEnum {
   SELECT,
   INSERT,
   UPDATE,
-  DELETE;
+  DELETE
 }

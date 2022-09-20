@@ -14,7 +14,6 @@ public class DeleteQuery extends SQLQuery implements SQLQueryBuilder {
     super(config, columnList);
   }
 
-  @Override
   public String build() {
     String query = DELETE.getQueryTemplate();
     return query.replace("{table}", getTableReplacement())

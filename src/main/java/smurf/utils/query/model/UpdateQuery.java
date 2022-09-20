@@ -14,7 +14,6 @@ public class UpdateQuery extends SQLQuery implements SQLQueryBuilder {
     super(config, columnList);
   }
 
-  @Override
   public String build() {
     String query = UPDATE.getQueryTemplate();
     return query.replace("{table}", getTableReplacement())
